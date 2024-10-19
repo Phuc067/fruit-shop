@@ -37,6 +37,15 @@ export default function useRouteElements() {
           ),
         },
         {
+          index: true,
+          path: path.cart,
+          element: (
+            <Suspense>
+              <Cart />
+            </Suspense>
+          ),
+        },
+        {
           path: "*",
           element: (
             <Suspense>
@@ -54,15 +63,15 @@ export default function useRouteElements() {
           path: "",
           element: <MainLayout />,
           children: [
-            {
-              index: true,
-              path: path.cart,
-              element: (
-                <Suspense>
-                  <Cart />
-                </Suspense>
-              ),
-            },
+            // {
+            //   index: true,
+            //   path: path.cart,
+            //   element: (
+            //     <Suspense>
+            //       <Cart />
+            //     </Suspense>
+            //   ),
+            // },
           ],
         },
       ],

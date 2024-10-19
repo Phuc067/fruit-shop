@@ -10,11 +10,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#EA3B92",
-        secondary: "#0A031C",
-        tertiary: "#640d9a",
-        quaternary: "#020510",
+        // primary: "#f36f40",
+        // secondary:"#FFFFFF",
+        // tertiary: '#640d9a'
+
+        primary:"#28a745",
+        secondary:"#f8c146",
+        background:"#F1F2F3",
+        gray:"#585C5F"
       },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'], // Thêm font Poppins
+      },
+      boxShadow: {
+        ct: '0 0 50px rgba(255, 255, 255, 0.4)',
+        ct3d: '2px 5px 3px rgba(255, 255, 255, 0.9)'
+      }
     },
   },
   plugins: [

@@ -2,13 +2,15 @@ import { memo } from "react";
 import { Outlet } from "react-router-dom";
 
 import Footer from "src/components/Footer";
-import Header from "src/components/Header";
+import NavHeader from "../../components/NavHeader/NavHeader";
 
-function MainLayoutInner({ children }) {
+function MainLayoutInner() {
+  
   return (
-    <div>
-      <Header />
-      {children}
+    <div >
+    <NavHeader/>
+      {/* <Header /> */}
+      {/* {children} */}
       <Outlet />
       <Footer />
     </div>
