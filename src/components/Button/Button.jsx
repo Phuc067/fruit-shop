@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 
 export default function Button({ className, isLoading, disabled, children, ...rest }) {
-  // const newClassName = `${className} ${disabled ? 'cursor-not-allowed' : ''}`;
   const newClassName = disabled ? className + ' ' + 'cursor-not-allowed' : className
 
   return (

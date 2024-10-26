@@ -1,72 +1,108 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import productApi from "../../apis/product.api";
+import Button from "../../components/Button/Button";
+import cartApi from "../../apis/cart.api";
+import { useMutation } from "@tanstack/react-query";
+import { useContext } from "react";
+import { AppContext } from "../../contexts/app.context";
+import { toast } from "react-toastify";
+import { setCartToLS } from "../../utils/auth";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
+  const { profile, setCart } = useContext(AppContext);
+  const {
+    data: products = [],
+    // isLoading,
+    // error,
+  } = useQuery({
+    queryFn: () => productApi.getProducts(),
+    keepPreviousData: true,
+    staleTime: 3 * 60 * 1000,
+    select: (result) => result.data.data,
+  });
 
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const result = await productApi.getProducts();
-        setProducts(result.data.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
+  const cartMutation = useMutation({
+    mutationFn: (body) => cartApi.addToCart(body),
+  });
+
+  const handleAddToCart = (id) => {
+    let body = {
+      userId: profile.id,
+      productId: id,
+      quantity: 1,
     };
-
-    getProducts();
-  }, []);
-
-  const handleAddToCart = (id)=>{
-      console.log(id);
-  }
+    console.log(body);
+    cartMutation.mutate(body, {
+      onSuccess: (result) => {
+        if (result.data.data) {
+          setCart(result.data.data);
+          setCartToLS(result.data.data);
+          toast.success(result.data.message);
+        }
+      },
+    });
+  };
 
   return (
     <div>
       <div className="container">
         <h2>Danh sách sản phẩm</h2>
-        <div className="flex grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4  gap-2 ">
-          {products.map((item) => (
-            <div
-              className="flex flex-col border-primary rounded-lg border-[1px] overflow-hidden cursor-pointer"
-              key={item.id}
-            >
-              <div className="w-full">
-                <img
-                  className="w-full aspect-square object-cover"
-                  src={item.image}
-                  alt=""
-                />
-                {item.discountPercentage ? (
-                  <span className="absolute top-[-5px] right-[-5px] bg-secondary p-4">
-                    {item.discountPercentage} %
-                  </span>
-                ) : (
-                  <></>
-                )}
-
-                <div className="flex flex-col px-5 mb-2 ">
-                  <h3 className="text-primary">{item.title}</h3>
-                  
-                  <div className="flex flex-wrap justify-end">
-                    {item.discountPercentage ? (
-                      <span className="text-decoration-line-through">{item.price} </span>
-                    ) : (
-                      <></>
-                    )}
-                    <span className="text-secondary mb-1">
-                      {(item.price - item.price * item.discountPercentage).toFixed(0)} đ
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-2 ">
+          {products &&
+            products.map((item) => (
+              <div
+                className="flex flex-col rounded-lg overflow-hidden cursor-pointer bg-white"
+                key={item.id}
+              >
+                <div className="w-full">
+                  <img
+                    className="w-full aspect-square object-cover"
+                    src={item.image}
+                    alt=""
+                  />
+                  {item.discountPercentage ? (
+                    <span className="absolute top-[-5px] right-[-5px] bg-secondary p-4">
+                      {item.discountPercentage} %
                     </span>
-                    
-                    <div className="w-full text-center rounded border-[1px] border-secondary py-1">
-                      <button onClick={() => handleAddToCart(item.id)}>Thêm vào giỏ hàng</button>
-                    <div/>
+                  ) : (
+                    <></>
+                  )}
+
+                  <div className="flex flex-col px-5 mb-2 ">
+                    <h3 className="text-primary">{item.title}</h3>
+
+                    <div className="flex flex-wrap justify-end">
+                      {item.discountPercentage ? (
+                        <span className="text-decoration-line-through">
+                          {item.price}{" "}
+                        </span>
+                      ) : (
+                        <></>
+                      )}
+                      <span className="text-secondary mb-1">
+                        {(
+                          item.price -
+                          item.price * item.discountPercentage
+                        ).toFixed(0)}{" "}
+                        đ
+                      </span>
+
+                      <div className="w-full text-center rounded  py-1 px-3">
+                        <Button
+                          isLoading={cartMutation.isLoading}
+                          disabled={cartMutation.isLoading}
+                          onClick={() => handleAddToCart(item.id)}
+                          className="flex w-full items-center justify-center rounded-[15px] bg-primary  px-2 py-4 text-center text-sm uppercase text-white hover:cursor-pointer hover:bg-primary hover:bg-opacity-70"
+                        >
+                          Thêm vào giỏ hàng
+                        </Button>
+                        <div />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

@@ -20,3 +20,7 @@ export function isAxiosExpiredTokenError(error) {
     error.response?.data.message === 'jwt expired'
   );
 }
+
+export function formatCurrency(num){
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};

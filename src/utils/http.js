@@ -7,6 +7,7 @@ import {
   getRefreshTokenFromLS,
   setAccessTokenToLS,
   setProfileToLS,
+  setCartToLS,
   setRefreshTokenToLS,
 } from "./auth";
 import config from "../constants/config";
@@ -53,11 +54,12 @@ export class Http {
         const { url } = response.config;
         if (url === URL_LOGIN || url === URL_VERIFY) {
           const data = response.data;
-          this.accessToken = data.data.access_token;
-          this.refreshToken = data.data.refresh_token;
+          this.accessToken = data.data.accessToken;
+          this.refreshToken = data.data.refreshToken;
           setAccessTokenToLS(this.accessToken);
           setRefreshTokenToLS(this.refreshToken);
           setProfileToLS(data.data.user);
+          setCartToLS(data.data.cartTotal);
         } else if (url === URL_LOGOUT) {
           this.accessToken = "";
           this.refreshToken = "";

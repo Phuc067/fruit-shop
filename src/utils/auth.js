@@ -12,6 +12,7 @@ export const clearLS = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("profile");
+  localStorage.removeItem("cart");
   const clearLSEvent = new Event("clearLS");
   localStorageEventTarget.dispatchEvent(clearLSEvent);
 };
@@ -27,5 +28,14 @@ export const setProfileToLS = (profile) => {
 
 export const getProfileFromLS = () => {
   const result = localStorage.getItem("profile");
+  return result ? JSON.parse(result) : null;
+};
+
+export const setCartToLS = (cart) => {
+  localStorage.setItem("cart", JSON.stringify(cart));
+};
+
+export const getCartFromLS = () => {
+  const result = localStorage.getItem("cart");
   return result ? JSON.parse(result) : null;
 };

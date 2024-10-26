@@ -9,6 +9,7 @@ import MainLayout from "./layouts/MainLayout";
 const Login = lazy(() => import("./pages/Login"));
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
+const Order = lazy(() => import("./pages/Order"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ProtectedRoute() {
@@ -36,15 +37,7 @@ export default function useRouteElements() {
             </Suspense>
           ),
         },
-        {
-          index: true,
-          path: path.cart,
-          element: (
-            <Suspense>
-              <Cart />
-            </Suspense>
-          ),
-        },
+       
         {
           path: "*",
           element: (
@@ -63,15 +56,24 @@ export default function useRouteElements() {
           path: "",
           element: <MainLayout />,
           children: [
-            // {
-            //   index: true,
-            //   path: path.cart,
-            //   element: (
-            //     <Suspense>
-            //       <Cart />
-            //     </Suspense>
-            //   ),
-            // },
+            {
+              index: true,
+              path: path.cart,
+              element: (
+                <Suspense>
+                  <Cart />
+                </Suspense>
+              ),
+            },
+            {
+              index: true,
+              path: path.order,
+              element: (
+                <Suspense>
+                  <Order/>
+                </Suspense>
+              ),
+            },
           ],
         },
       ],

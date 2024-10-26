@@ -28,18 +28,13 @@ export default function Login() {
     mutationFn: (body) => authApi.login(body),
   });
 
-  // const handleFormSubmit = (event) => {
-  //   event.preventDefault(); // Ngăn chặn hành động mặc định
-  //   onSubmit(); // Gọi hàm submit sau khi ngăn chặn hành động mặc định
-  // };
-  
 
   const onSubmit = handleSubmit((body) => {
     console.log(body);
     loginMutation.mutate(body, {
       onSuccess: (data) => {
         setIsAuthenticated(true);
-        // setProfile(data.data.data.user);
+        setProfile(data.data.data.user);
         navigate(
           window.location.href.split("=")[1]
             ? window.location.href.split("=")[1]
@@ -87,7 +82,7 @@ export default function Login() {
                 register={register}
                 errorMessage={errors.password?.message}
                 autoComplete='on'
-                // classNameEye='absolute right-[5px] top-[12px] h-5 w-5 cursor-pointer'
+                classNameEye='absolute right-[5px] top-[12px] h-5 w-5 cursor-pointer'
               />
             </div>
             <div className="flex justify-between mb-2">
@@ -107,8 +102,8 @@ export default function Login() {
             </div>
             <div>
               <Button
-                isLoading={false}
-                disabled={false}
+                isLoading={loginMutation.isLoading}
+                disabled={loginMutation.isLoading}
                 type="submit"
                 className="flex w-full items-center justify-center rounded-[15px] bg-primary bg-opacity-70 px-2 py-4 text-center text-sm uppercase text-white hover:cursor-pointer hover:bg-primary"
               >

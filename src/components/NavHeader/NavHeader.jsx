@@ -10,9 +10,9 @@ import path from "src/constants/path";
 import authApi from "src/apis/auth.api";
 
 export default function NavHeader() {
-  const { isAuthenticated, setIsAuthenticated, profile, setProfile } =
+  const { isAuthenticated, setIsAuthenticated, profile, setProfile, cart} =
     useContext(AppContext);
-  console.log(AppContext);
+  // console.log(AppContext);
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
@@ -28,6 +28,7 @@ export default function NavHeader() {
 
   return (
     <>
+    <div className="shadow-ct bg-white ">
       <div className="container py-5">
         <div className="flex items-center justify-between">
           <Link to={path.home}>
@@ -118,11 +119,12 @@ export default function NavHeader() {
               </div>
             )}
             {isAuthenticated && (
-              <div className="flex items-center hover:text-primary/70">
+              <div className="flex items-center hover:text-primary/70 relative">
                 <Link
                   to={path.cart}
                   className="mx-3 capitalize"
                 >
+                {cart > 0 && <span className="absolute top-[-50%] right-0 bg-red-500 text-white text-xs rounded-xl h-5 w-5 flex items-center justify-center">{cart}</span>}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -267,6 +269,7 @@ export default function NavHeader() {
             Tài khoản
           </NavLink>
         </div>
+      </div>
       </div>
     </>
   );

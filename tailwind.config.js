@@ -15,12 +15,13 @@ module.exports = {
         // tertiary: '#640d9a'
 
         primary:"#28a745",
-        secondary:"#f8c146",
+        secondary:"#ee4d2d",
+        // secondary:"#f8c146",
         background:"#F1F2F3",
-        gray:"#585C5F"
+        gray:"#333333"
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'], // Thêm font Poppins
+        sans: ['Poppins', 'sans-serif'], 
       },
       boxShadow: {
         ct: '0 0 50px rgba(255, 255, 255, 0.4)',
@@ -35,8 +36,16 @@ module.exports = {
           maxWidth: theme("columns.7xl"),
           marginLeft: "auto",
           marginRight: "auto",
-          paddingLeft: theme("spacing.6"),
-          paddingRight: theme("spacing.6"),
+          paddingLeft: theme("spacing.2"),
+          paddingRight: theme("spacing.2"),
+          "@screen sm": {
+            paddingLeft: theme("spacing.4"),
+            paddingRight: theme("spacing.4"),
+          },
+          "@screen lg": {
+            paddingLeft: theme("spacing.6"),
+            paddingRight: theme("spacing.6"),
+          }
         },
       });
     }),

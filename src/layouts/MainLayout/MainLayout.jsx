@@ -7,7 +7,7 @@ import NavHeader from "../../components/NavHeader/NavHeader";
 function MainLayoutInner() {
   
   return (
-    <div >
+    <div className="bg-background">
     <NavHeader/>
       {/* <Header /> */}
       {/* {children} */}

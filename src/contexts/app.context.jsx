@@ -2,6 +2,7 @@ import { createContext, useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 import { getAccessTokenFromLS, getProfileFromLS } from "src/utils/auth";
+import { getCartFromLS } from "../utils/auth";
 
 // Hàm để lấy dữ liệu khởi tạo ban đầu cho context
 export const getInitialAppContext = () => ({
@@ -10,7 +11,7 @@ export const getInitialAppContext = () => ({
   profile: getProfileFromLS(),
   setProfile: () => null,
   reset: () => null,
-  cart: null,
+  cart: getCartFromLS(),
   setCart: () => null
 });
 
