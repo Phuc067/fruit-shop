@@ -46,12 +46,11 @@ export default function Home() {
   return (
     <div>
       <div className="container">
-        <h2>Danh sách sản phẩm</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-2 ">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  gap-2 mt-5">
           {products &&
             products.map((item) => (
               <div
-                className="flex flex-col rounded-lg overflow-hidden cursor-pointer bg-white"
+                className="flex flex-col rounded-lg overflow-hidden cursor-pointer bg-white mb-5"
                 key={item.id}
               >
                 <div className="w-full">

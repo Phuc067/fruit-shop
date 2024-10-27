@@ -18,7 +18,8 @@ module.exports = {
         secondary:"#ee4d2d",
         // secondary:"#f8c146",
         background:"#F1F2F3",
-        gray:"#333333"
+        gray:"#333333",
+        smokeBlack: "#0000008A"
       },
       fontFamily: {
         sans: ['Poppins', 'sans-serif'], 
