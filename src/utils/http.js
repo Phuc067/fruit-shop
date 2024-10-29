@@ -86,6 +86,7 @@ export class Http {
           //Trường hợp Token hết hạn và request đó không phải là request refresh token
           //thì chúng ta mới tiến hành gọi refresh token
           if (isAxiosExpiredTokenError(error) && url !== URL_REFRESH_TOKEN) {
+            console.log("Gọi refresh Token");
             this.refreshTokenRequest = this.refreshTokenRequest
               ? this.refreshTokenRequest
               : this.handleRefreshToken().finally(() => {
@@ -94,11 +95,11 @@ export class Http {
                     this.refreshTokenRequest = null;
                   }, 10000);
                 });
-            return this.refreshTokenRequest.then((access_token) => {
+            return this.refreshTokenRequest.then((accessToken) => {
               //Nghĩa là gọi lại request cũ bị lỗi
               return this.instance({
                 ...config,
-                headers: { ...config.headers, authorization: access_token },
+                headers: { ...config.headers, authorization: accessToken },
               });
             });
           }
@@ -122,14 +123,13 @@ export class Http {
   handleRefreshToken() {
     return this.instance
       .post(URL_REFRESH_TOKEN, {
-        access_token: this.accessToken,
-        refresh_token: this.refreshToken,
+        refreshToken: this.refreshToken
       })
       .then((res) => {
-        const { access_token } = res.data.data;
-        setAccessTokenToLS(access_token);
-        this.accessToken = access_token;
-        return access_token;
+        const { accessToken } = res.data.data;
+        setAccessTokenToLS(accessToken);
+        this.accessToken = accessToken;
+        return accessToken;
       })
       .catch((error) => {
         this.accessToken = "";

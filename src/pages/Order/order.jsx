@@ -1,19 +1,24 @@
 import shippingInformationApi from "../../apis/shippingInformation.api";
 import { AppContext } from "../../contexts/app.context";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { formatCurrency } from "../../utils/utils";
 import { Modal } from "antd";
+import ShippingAddressModal from "./components/ShippingAddressModal";
 import Button from "../../components/Button";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Order() {
   const { profile } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-
   const [shippingInformation, setShippingInformation] = useState(null);
-
   const [listShippingInformation, setListShippingInformation] = useState([]);
+
+  const [shippingAddressModalOpen, setShippingAddressModalOpen] =
+    useState(false);
+
+  const shippingInfoRef = useRef(null);
 
   const listSelectedCart = JSON.parse(
     sessionStorage.getItem("listSelectedCart")
@@ -69,6 +74,41 @@ export default function Order() {
   };
   const handleCancel = () => {
     setOpen(false);
+  };
+
+  const showUpdateModal = (shippingInfo) => {
+    shippingInfoRef.current = shippingInfo;
+    setShippingAddressModalOpen(true);
+  };
+
+  const handleShippingAddressModalClose = () => {
+    setShippingAddressModalOpen(false);
+    shippingInfoRef.current = null;
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, body }) =>
+      shippingInformationApi.updateShippingInformation(id, body),
+  });
+
+  const handleUpdateShippingAdrress = (id, body) => {
+    const updatedBody = {
+      ...body,
+      userId: profile.id,
+    };
+    updateMutation.mutate(
+      { id, updatedBody },
+      {
+        onSuccess: (result) => {
+          let data = result.data.data;
+          if (data) {
+            console.log(data);
+          } else {
+            toast.error(result.data.message);
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -167,25 +207,24 @@ export default function Order() {
                                 <div className="flex gap-1 justify-end">
                                   <div className="flex-grow">
                                     <strong className="text-bold border-r text-gray border-smokeBlack pr-2">
-                                      {shippingInformation.recipientName}
+                                      {item.recipientName}
                                     </strong>
-                                    <span className="pl-2">
-                                      {shippingInformation.phone}
-                                    </span>
+                                    <span className="pl-2">{item.phone}</span>
                                   </div>
                                   <div>
-                                    <Button className="text-blue-600 font-medium px-2">
+                                    <Button
+                                      className="text-blue-600 font-medium px-2"
+                                      onClick={() => showUpdateModal(item)}
+                                    >
                                       Cập nhật
                                     </Button>
                                   </div>
                                 </div>
                                 <div className="flex gap-2  w-[80%]">
-                                  <span>
-                                    {shippingInformation.shippingAdress}
-                                  </span>
+                                  <span>{item.shippingAdress}</span>
                                 </div>
                                 <div>
-                                  {shippingInformation.isPrimary && (
+                                  {item.isPrimary && (
                                     <span className="inline-flex items-center text-sm border border-secondary text-secondary rounded-sm px-1 flex-shrink-0 ">
                                       Mặc Định
                                     </span>
@@ -206,6 +245,12 @@ export default function Order() {
               <button>Thêm địa chỉ</button>
             </div>
           )}
+          <ShippingAddressModal
+            open={shippingAddressModalOpen}
+            onClose={handleShippingAddressModalClose}
+            onSubmit={handleUpdateShippingAdrress}
+            shippingInfo={shippingInfoRef.current}
+          />
         </div>
       </div>
       <div className="container bg-white rounded-sm py-1 mt-3">

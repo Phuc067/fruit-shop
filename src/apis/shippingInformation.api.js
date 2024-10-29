@@ -12,6 +12,9 @@ const shippingInformationApi = {
     return http.get(`${URL}/${userId}?isPrimary=true`)
   },
  
+  updateShippingInformation(id, body) {
+    return http.put(`${URL}/${id}`, body)
+  }
 }
 
 export default shippingInformationApi

@@ -1,6 +1,6 @@
 import http from 'src/utils/http'
 
-const URL = 'api/products'
+const URL = 'api/public/products'
 
 const productApi = {
   getProducts() {
