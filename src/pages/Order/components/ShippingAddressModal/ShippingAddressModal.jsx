@@ -7,6 +7,7 @@ import shippingInformationApi from "../../../../apis/shippingInformation.api";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { AppContext } from "../../../../contexts/app.context";
+import HttpStatusCode from "../../../../constants/httpStatusCode.enum";
 
 export const ShippingAddressModal = ({
   open,
@@ -29,7 +30,6 @@ export const ShippingAddressModal = ({
       setRecipientName("");
       setPhone("");
       setAddress("");
-      setIsPrimary(false);
     }
   }, [shippingInfo]);
 
@@ -43,6 +43,9 @@ export const ShippingAddressModal = ({
       shippingInformationApi.updateShippingInformation(id, body),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => shippingInformationApi.deleteShippingInformation(id),
+  });
   const handleCreateShippingAddress = () => {
     const body = {
       recipientName,
@@ -69,8 +72,9 @@ export const ShippingAddressModal = ({
       recipientName,
       phone,
       shippingAdress: address,
-      isPrimary,
+      isPrimary: isPrimary,
     };
+    console.log(body);
     const id = shippingInfo.id;
     updateMutation.mutate(
       { id, body },
@@ -90,6 +94,24 @@ export const ShippingAddressModal = ({
         },
       }
     );
+  };
+
+  const handleDeleteShippingAddress = () => {
+    deleteMutation.mutate(shippingInfo.id, {
+      onSuccess: (result) => {
+        const statusCode = result.data.status;
+        console.log("HTTP Code:", statusCode);
+        console.log("enum", HttpStatusCode.Accepted);
+        if (statusCode == HttpStatusCode.Accepted) {
+          onSubmit(shippingInfo.id, null);
+          toast.success(result.data.message);
+        }
+        onClose();
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   };
 
   const handleSubmit = () => {
@@ -146,6 +168,7 @@ export const ShippingAddressModal = ({
               </span>
               <Input
                 value={recipientName}
+                name="recipientName"
                 onChange={(e) => setRecipientName(e.target.value)}
               />
             </div>
@@ -153,7 +176,11 @@ export const ShippingAddressModal = ({
               <span className="absolute z-10 top-[-12px] left-2 bg-white px-1">
                 Số điện thoại
               </span>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input
+                value={phone}
+                name="phone"
+                onChange={(e) => setPhone(e.target.value)}
+              />
             </div>
           </div>
           <div className="relative">
@@ -162,6 +189,7 @@ export const ShippingAddressModal = ({
             </span>
             <Input
               value={address}
+              name="address"
               onChange={(e) => setAddress(e.target.value)}
             />
           </div>
@@ -171,7 +199,8 @@ export const ShippingAddressModal = ({
             <div>
               <input
                 type="checkbox"
-                value={isPrimary}
+                name="isPrimary"
+                checked={isPrimary}
                 onClick={() => {
                   setIsPrimary(!isPrimary);
                 }}
@@ -179,7 +208,12 @@ export const ShippingAddressModal = ({
               <span>Đặt làm địa chỉ mặc định</span>
             </div>
             <div>
-              <Button className={"text-red-500"}>Xóa</Button>
+              <Button
+                className={"text-red-500"}
+                onClick={handleDeleteShippingAddress}
+              >
+                Xóa
+              </Button>
             </div>
           </div>
         )}
@@ -190,7 +224,6 @@ export const ShippingAddressModal = ({
 
 ShippingAddressModal.propTypes = {
   open: PropTypes.bool.isRequired,
-  isLoading: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   shippingInfo: PropTypes.shape({

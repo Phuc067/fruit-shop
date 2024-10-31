@@ -50,6 +50,7 @@ export default function Order() {
       const response = await shippingInformationApi.getShippingInformations(
         profile.id
       );
+      
       if (response.data.data) {
         setListShippingInformation(response.data.data);
       } else {
@@ -62,12 +63,14 @@ export default function Order() {
     setOpen(true);
   };
 
+  const handleRadioChange = (shippingInfo) => {
+    shippingInfoRef.current = shippingInfo;
+  };
+
   const handleOk = () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setOpen(false);
-    }, 3000);
+    setCurrentShippingInformation(shippingInfoRef.current)
+    setOpen(false);
   };
 
   const handleCancel = () => {
@@ -85,9 +88,15 @@ export default function Order() {
   };
 
   const handleUpdateShippingAdrress = (id, data) => {
-    if (data) {
-      setListShippingInformation((prevList) => {
-        const index = prevList.findIndex((item) => item.id === id);
+    if (data.isPrimary) {
+      setListShippingInformation(prevList =>
+        prevList.map(item =>
+          item.id === id ? { ...item, ...data } : { ...item, isPrimary: false }
+        )
+      );
+    } else {
+      setListShippingInformation(prevList => {
+        const index = prevList.findIndex(item => item.id === id);
         if (index !== -1) {
           const updatedList = [
             ...prevList.slice(0, index),
@@ -103,13 +112,12 @@ export default function Order() {
   };
 
   const showCreateModal = () => {
-    // shippingInfoRef.current = null;
+    shippingInfoRef.current = null;
     setShippingAddressModalOpen(true);
   };
 
   const handleAddShippingAddress = (data) => {
-    if(data) setListShippingInformation([...listShippingInformation, data]);
-   
+    if (data) setListShippingInformation([...listShippingInformation, data]);
   };
 
   return (
@@ -200,10 +208,10 @@ export default function Order() {
                             <div className="flex gap-2 border-t border-smokeBlack py-4 text-smokeBlack">
                               <div className="w-6 h-6">
                                 <input
-                                  type="checkbox"
-                                  defaultChecked={
-                                    item.id === currentShippingInformation.id
-                                  }
+                                  type="radio"
+                                  name="shippingInfo"
+                                  defaultChecked={item.id === currentShippingInformation.id}
+                                  onChange = {()=>handleRadioChange(item)}
                                   className="relative appearance-none w-4 h-4 rounded-full border-2 border-smokeBlack checked:border-secondary checked:before:content-[''] checked:before:block checked:before:w-2 checked:before:h-2 checked:before:bg-secondary checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:transform checked:before:translate-x-[-50%] checked:before:translate-y-[-50%]"
                                 />
                               </div>

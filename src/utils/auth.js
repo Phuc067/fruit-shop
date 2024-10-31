@@ -1,16 +1,16 @@
 export const localStorageEventTarget = new EventTarget();
 
-export const setAccessTokenToLS = (access_token) => {
-  localStorage.setItem("access_token", access_token);
+export const setAccessTokenToLS = (accessToken) => {
+  localStorage.setItem("accessToken", accessToken);
 };
 
-export const setRefreshTokenToLS = (refresh_token) => {
-  localStorage.setItem("refresh_token", refresh_token);
+export const setRefreshTokenToLS = (refreshToken) => {
+  localStorage.setItem("refreshToken", refreshToken);
 };
 
 export const clearLS = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem("profile");
   localStorage.removeItem("cart");
   const clearLSEvent = new Event("clearLS");
@@ -18,9 +18,9 @@ export const clearLS = () => {
 };
 
 export const getAccessTokenFromLS = () =>
-  localStorage.getItem("access_token") || "";
+  localStorage.getItem("accessToken") || "";
 export const getRefreshTokenFromLS = () =>
-  localStorage.getItem("refresh_token") || "";
+  localStorage.getItem("refreshToken") || "";
 
 export const setProfileToLS = (profile) => {
   localStorage.setItem("profile", JSON.stringify(profile));

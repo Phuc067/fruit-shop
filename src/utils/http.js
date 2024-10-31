@@ -82,14 +82,11 @@ export class Http {
         }
         //Nếu là lỗi 401
         if (isAxiosUnauthorizedError(error)) {
-          console.log("Lỗi do access token hết hạn");
           const config = error.response?.config || { headers: {} };
           const { url } = config;
-          console.log(`Url just call ${url}`);
           //Trường hợp Token hết hạn và request đó không phải là request refresh token
           //thì chúng ta mới tiến hành gọi refresh token
           if (isAxiosExpiredTokenError(error) && url !== URL_REFRESH_TOKEN) {
-            console.log("Gọi refresh token");
             this.refreshTokenRequest = this.refreshTokenRequest
               ? this.refreshTokenRequest
               : this.handleRefreshToken().finally(() => {
@@ -99,7 +96,7 @@ export class Http {
                   }, 10000);
                 });
             return this.refreshTokenRequest.then((accessToken) => {
-              //Nghĩa là gọi lại request cũ bị lỗi
+              //Gọi lại request cũ bị lỗi
               return this.instance({
                 ...config,
                 headers: { ...config.headers, authorization: accessToken },
@@ -126,10 +123,10 @@ export class Http {
   handleRefreshToken() {
     return this.instance
       .post(URL_REFRESH_TOKEN, {
-        refreshToken: this.refreshToken
+        refreshToken: this.refreshToken,
       })
       .then((res) => {
-        const { accessToken } = res.data.data;
+        const accessToken = res.data.data;
         setAccessTokenToLS(accessToken);
         this.accessToken = accessToken;
         return accessToken;
