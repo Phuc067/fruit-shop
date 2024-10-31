@@ -6,13 +6,13 @@ import { formatCurrency } from "../../utils/utils";
 import { Modal } from "antd";
 import ShippingAddressModal from "./components/ShippingAddressModal";
 import Button from "../../components/Button";
-import { useMutation } from "@tanstack/react-query";
 
 export default function Order() {
   const { profile } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [shippingInformation, setShippingInformation] = useState(null);
+  const [currentShippingInformation, setCurrentShippingInformation] =
+    useState(null);
   const [listShippingInformation, setListShippingInformation] = useState([]);
 
   const [shippingAddressModalOpen, setShippingAddressModalOpen] =
@@ -23,9 +23,7 @@ export default function Order() {
   const listSelectedCart = JSON.parse(
     sessionStorage.getItem("listSelectedCart")
   );
-  console.log(listSelectedCart);
 
-  console.log(profile);
   useEffect(() => {
     const getPrimaryShippingInformation = async () => {
       try {
@@ -34,7 +32,7 @@ export default function Order() {
             profile.id
           );
         if (response.data.data) {
-          setShippingInformation(response.data.data);
+          setCurrentShippingInformation(response.data.data);
         } else {
           toast.error(response.data.message);
         }
@@ -61,7 +59,6 @@ export default function Order() {
       console.error("Failed to fetch shipping information list", error);
       toast.error("Không thể lấy danh sách địa chỉ nhận hàng");
     }
-    console.log(listShippingInformation);
     setOpen(true);
   };
 
@@ -72,6 +69,7 @@ export default function Order() {
       setOpen(false);
     }, 3000);
   };
+
   const handleCancel = () => {
     setOpen(false);
   };
@@ -86,29 +84,32 @@ export default function Order() {
     shippingInfoRef.current = null;
   };
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, body }) =>
-      shippingInformationApi.updateShippingInformation(id, body),
-  });
+  const handleUpdateShippingAdrress = (id, data) => {
+    if (data) {
+      setListShippingInformation((prevList) => {
+        const index = prevList.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          const updatedList = [
+            ...prevList.slice(0, index),
+            { ...prevList[index], ...data },
+            ...prevList.slice(index + 1),
+          ];
+          return updatedList;
+        }
+        return prevList;
+      });
+    }
+    console.log(listShippingInformation);
+  };
 
-  const handleUpdateShippingAdrress = (id, body) => {
-    const updatedBody = {
-      ...body,
-      userId: profile.id,
-    };
-    updateMutation.mutate(
-      { id, updatedBody },
-      {
-        onSuccess: (result) => {
-          let data = result.data.data;
-          if (data) {
-            console.log(data);
-          } else {
-            toast.error(result.data.message);
-          }
-        },
-      }
-    );
+  const showCreateModal = () => {
+    // shippingInfoRef.current = null;
+    setShippingAddressModalOpen(true);
+  };
+
+  const handleAddShippingAddress = (data) => {
+    if(data) setListShippingInformation([...listShippingInformation, data]);
+   
   };
 
   return (
@@ -136,20 +137,20 @@ export default function Order() {
           </svg>
           <h2 className="text-xl font-semibold">Địa chỉ nhận hàng</h2>
         </div>
-        <div>
-          {shippingInformation ? (
+        <div className="">
+          {currentShippingInformation ? (
             <div className="flex gap-2 pl-1 text-xs md:text-sm">
               <div className="flex gap-2">
                 <div className="flex gap-1">
                   <strong className="text-bold">
-                    {shippingInformation.recipientName}
+                    {currentShippingInformation.recipientName}
                   </strong>
-                  <strong>{shippingInformation.phone}</strong>
+                  <strong>{currentShippingInformation.phone}</strong>
                 </div>
 
                 <div className="flex gap-2 ml-3 items-center w-[80%]">
-                  <span>{shippingInformation.shippingAdress}</span>
-                  {shippingInformation.isPrimary && (
+                  <span>{currentShippingInformation.shippingAdress}</span>
+                  {currentShippingInformation.isPrimary && (
                     <span className=" flex items-center text-[8px] md:text-[10px] border border-secondary text-secondary rounded-sm px-1 flex-shrink-0 h-5">
                       Mặc Định
                     </span>
@@ -190,7 +191,7 @@ export default function Order() {
                     </div>,
                   ]}
                 >
-                  <div>
+                  <div className="max-h-96 overflow-auto  scrollbar-hidden">
                     {listShippingInformation &&
                       listShippingInformation.map((item) => {
                         return (
@@ -200,6 +201,9 @@ export default function Order() {
                               <div className="w-6 h-6">
                                 <input
                                   type="checkbox"
+                                  defaultChecked={
+                                    item.id === currentShippingInformation.id
+                                  }
                                   className="relative appearance-none w-4 h-4 rounded-full border-2 border-smokeBlack checked:border-secondary checked:before:content-[''] checked:before:block checked:before:w-2 checked:before:h-2 checked:before:bg-secondary checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:transform checked:before:translate-x-[-50%] checked:before:translate-y-[-50%]"
                                 />
                               </div>
@@ -235,6 +239,14 @@ export default function Order() {
                           </div>
                         );
                       })}
+                    <div className="border-t border-smokeBlack">
+                      <Button
+                        className={"pt-5 px-8 mb-2 text-blue-600 font-medium"}
+                        onClick={showCreateModal}
+                      >
+                        Thêm địa chỉ
+                      </Button>
+                    </div>
                   </div>
                 </Modal>
               </div>
@@ -242,13 +254,17 @@ export default function Order() {
           ) : (
             <div className="flex flex-col gap-2 ml-3 text-xs md:text-sm">
               <span>Bạn chưa có địa chỉ nhận hàng</span>
-              <button>Thêm địa chỉ</button>
+              <Button>Thêm địa chỉ</Button>
             </div>
           )}
           <ShippingAddressModal
             open={shippingAddressModalOpen}
             onClose={handleShippingAddressModalClose}
-            onSubmit={handleUpdateShippingAdrress}
+            onSubmit={
+              shippingInfoRef.current
+                ? handleUpdateShippingAdrress
+                : handleAddShippingAddress
+            }
             shippingInfo={shippingInfoRef.current}
           />
         </div>

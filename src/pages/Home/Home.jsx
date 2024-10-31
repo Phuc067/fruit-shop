@@ -7,9 +7,12 @@ import { useContext } from "react";
 import { AppContext } from "../../contexts/app.context";
 import { toast } from "react-toastify";
 import { setCartToLS } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import path from "../../constants/path";
 
 export default function Home() {
   const { profile, setCart } = useContext(AppContext);
+  const navigator = useNavigate();
   const {
     data: products = [],
     // isLoading,
@@ -26,6 +29,7 @@ export default function Home() {
   });
 
   const handleAddToCart = (id) => {
+    if(profile === null) navigator(path.login)
     let body = {
       userId: profile.id,
       productId: id,

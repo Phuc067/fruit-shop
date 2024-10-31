@@ -48,6 +48,13 @@ module.exports = {
             paddingRight: theme("spacing.6"),
           }
         },
+        '.scrollbar-hidden::-webkit-scrollbar': {
+          display: 'none',
+        },
+        '.scrollbar-hidden': {
+          '-ms-overflow-style': 'none', /* Internet Explorer and Edge */
+          'scrollbar-width': 'none', /* Firefox */
+        },
       });
     }),
   ],

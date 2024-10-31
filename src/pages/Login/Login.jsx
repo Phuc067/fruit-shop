@@ -12,7 +12,7 @@ import authApi from "../../apis/auth.api";
 
 
 export default function Login() {
-  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const { setIsAuthenticated, setProfile, setCart } = useContext(AppContext)
   const navigate = useNavigate()
   const {
     register,
@@ -35,6 +35,7 @@ export default function Login() {
       onSuccess: (data) => {
         setIsAuthenticated(true);
         setProfile(data.data.data.user);
+        setCart(data.data.data.cartTotal)
         navigate(
           window.location.href.split("=")[1]
             ? window.location.href.split("=")[1]
@@ -71,7 +72,7 @@ export default function Login() {
                 type="text"
                 placeholder="Enter your username..."
                 name="username"
-               register=  {register}
+                register=  {register}
                 errorMessage={errors.username?.message}
               />
               <Input

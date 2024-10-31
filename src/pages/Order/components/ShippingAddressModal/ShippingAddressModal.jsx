@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Modal } from "antd";
 import Input from "../../../../components/Input";
 import Button from "../../../../components/Button";
 import PropTypes from "prop-types";
+import shippingInformationApi from "../../../../apis/shippingInformation.api";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { AppContext } from "../../../../contexts/app.context";
 
 export const ShippingAddressModal = ({
   open,
-  isLoading,
   onSubmit,
   onClose,
   shippingInfo,
@@ -14,26 +17,93 @@ export const ShippingAddressModal = ({
   const [recipientName, setRecipientName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-
+  const [isPrimary, setIsPrimary] = useState(false);
+  const { profile } = useContext(AppContext);
   useEffect(() => {
     if (shippingInfo) {
       setRecipientName(shippingInfo.recipientName);
       setPhone(shippingInfo.phone);
       setAddress(shippingInfo.shippingAdress);
+      setIsPrimary(shippingInfo.isPrimary);
+    } else {
+      setRecipientName("");
+      setPhone("");
+      setAddress("");
+      setIsPrimary(false);
     }
   }, [shippingInfo]);
 
-  const handleSubmit = () => {
+  const addMutation = useMutation({
+    mutationFn: (body) =>
+      shippingInformationApi.createShippingInformation(body),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, body }) =>
+      shippingInformationApi.updateShippingInformation(id, body),
+  });
+
+  const handleCreateShippingAddress = () => {
     const body = {
       recipientName,
       phone,
       shippingAdress: address,
+      userId: profile.id,
     };
 
-    if (shippingInfo) {
-      onSubmit(shippingInfo.id, body);
-    }
+    console.log(body);
+    addMutation.mutate(body, {
+      onSuccess: (result) => {
+        toast.success(result.data.message);
+        let data = result.data.data;
+        onSubmit(data);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
+  };
 
+  const handleUpdateShippingAdrress = () => {
+    const body = {
+      recipientName,
+      phone,
+      shippingAdress: address,
+      isPrimary,
+    };
+    const id = shippingInfo.id;
+    updateMutation.mutate(
+      { id, body },
+      {
+        onSuccess: (result) => {
+          let data = result.data.data;
+          if (data) {
+            console.log(data);
+            onSubmit(id, data);
+            toast.success(result.data.message);
+          } else {
+            toast.error(result.data.message);
+          }
+        },
+        onError: (error) => {
+          console.log(error);
+        },
+      }
+    );
+  };
+
+  const handleSubmit = () => {
+    shippingInfo
+      ? handleUpdateShippingAdrress()
+      : handleCreateShippingAddress();
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setRecipientName("");
+    setPhone("");
+    setAddress("");
+    setIsPrimary(false);
     onClose();
   };
   return (
@@ -43,7 +113,7 @@ export const ShippingAddressModal = ({
         title={shippingInfo ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
         closable={false}
         onOk={onSubmit}
-        onCancel={onClose}
+        onCancel={handleClose}
         footer={[
           <div
             key="footer"
@@ -59,7 +129,7 @@ export const ShippingAddressModal = ({
             <Button
               key="submit"
               type="primary"
-              loading={isLoading}
+              loading={addMutation.isLoading || updateMutation.isLoading}
               onClick={handleSubmit}
               className="w-32 p-2 text-white bg-secondary border border-secondary rounded-sm"
             >
@@ -69,22 +139,50 @@ export const ShippingAddressModal = ({
         ]}
       >
         <div>
-          <Input
-            placeholder="Tên người nhận"
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value)}
-          />
-          <Input
-            placeholder="Số điện thoại"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <Input
-            placeholder="Địa chỉ nhận hàng"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
+          <div className="flex gap-2 pt-4">
+            <div className="relative flex-grow">
+              <span className="absolute z-10 top-[-12px] left-2 bg-white px-1">
+                Họ và tên
+              </span>
+              <Input
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+              />
+            </div>
+            <div className="relative">
+              <span className="absolute z-10 top-[-12px] left-2 bg-white px-1">
+                Số điện thoại
+              </span>
+              <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+          </div>
+          <div className="relative">
+            <span className="absolute z-10 top-[-12px] left-2 bg-white px-1">
+              Địa chỉ nhận hàng
+            </span>
+            <Input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </div>
         </div>
+        {shippingInfo && (
+          <div className="flex justify-between">
+            <div>
+              <input
+                type="checkbox"
+                value={isPrimary}
+                onClick={() => {
+                  setIsPrimary(!isPrimary);
+                }}
+              />
+              <span>Đặt làm địa chỉ mặc định</span>
+            </div>
+            <div>
+              <Button className={"text-red-500"}>Xóa</Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </>
   );
@@ -100,5 +198,6 @@ ShippingAddressModal.propTypes = {
     recipientName: PropTypes.string,
     phone: PropTypes.string,
     shippingAdress: PropTypes.string,
+    isPrimary: PropTypes.bool,
   }),
 };
