@@ -50,7 +50,7 @@ export default function Order() {
       const response = await shippingInformationApi.getShippingInformations(
         profile.id
       );
-      
+
       if (response.data.data) {
         setListShippingInformation(response.data.data);
       } else {
@@ -69,7 +69,7 @@ export default function Order() {
 
   const handleOk = () => {
     setLoading(true);
-    setCurrentShippingInformation(shippingInfoRef.current)
+    setCurrentShippingInformation(shippingInfoRef.current);
     setOpen(false);
   };
 
@@ -89,14 +89,14 @@ export default function Order() {
 
   const handleUpdateShippingAdrress = (id, data) => {
     if (data.isPrimary) {
-      setListShippingInformation(prevList =>
-        prevList.map(item =>
+      setListShippingInformation((prevList) =>
+        prevList.map((item) =>
           item.id === id ? { ...item, ...data } : { ...item, isPrimary: false }
         )
       );
     } else {
-      setListShippingInformation(prevList => {
-        const index = prevList.findIndex(item => item.id === id);
+      setListShippingInformation((prevList) => {
+        const index = prevList.findIndex((item) => item.id === id);
         if (index !== -1) {
           const updatedList = [
             ...prevList.slice(0, index),
@@ -119,6 +119,19 @@ export default function Order() {
   const handleAddShippingAddress = (data) => {
     if (data) setListShippingInformation([...listShippingInformation, data]);
   };
+
+  const totalPayment = listSelectedCart.reduce(
+    (total, item) =>
+      total +
+      item.quantity *
+        (item.product.price -
+          (item.product.price *
+            item.product.discountPercentage) /
+            100),
+    0
+  );
+
+  console.log(listSelectedCart);
 
   return (
     <>
@@ -210,8 +223,10 @@ export default function Order() {
                                 <input
                                   type="radio"
                                   name="shippingInfo"
-                                  defaultChecked={item.id === currentShippingInformation.id}
-                                  onChange = {()=>handleRadioChange(item)}
+                                  defaultChecked={
+                                    item.id === currentShippingInformation.id
+                                  }
+                                  onChange={() => handleRadioChange(item)}
                                   className="relative appearance-none w-4 h-4 rounded-full border-2 border-smokeBlack checked:border-secondary checked:before:content-[''] checked:before:block checked:before:w-2 checked:before:h-2 checked:before:bg-secondary checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:transform checked:before:translate-x-[-50%] checked:before:translate-y-[-50%]"
                                 />
                               </div>
@@ -301,11 +316,10 @@ export default function Order() {
             <div className="text-center text-xs md:text-sm">
               {item.product.discountPercentage > 0 && (
                 <span className="line-through">
-                  đ formatCurrency({item.product.price * item.quantity})
+                  formatCurrency({item.product.price * item.quantity})
                 </span>
               )}
               <span>
-                đ
                 {formatCurrency(
                   item.product.price -
                     (item.product.price * item.product.discountPercentage) / 100
@@ -316,7 +330,6 @@ export default function Order() {
               <span className="block w-10  text-center ">{item.quantity}</span>
             </div>
             <div className="text-center font-semibold text-xs md:text-sm">
-              đ
               {formatCurrency(
                 (item.product.price -
                   (item.product.price * item.product.discountPercentage) /
@@ -326,6 +339,27 @@ export default function Order() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="container bg-white rounded-sm py-1 mt-3 border-b-2 border-background">
+        <div className="flex gap-2 py-5 ">
+          <span>Phương Thức thanh toán</span>
+          <div className="flex gap-2">
+            <Button className="border-2 px-2 border-smokeBlack hover:border-secondary hover:text-secondary rounded-md">
+              Vnpay
+            </Button>
+            <Button className="border-2 px-2 border-smokeBlack hover:border-secondary hover:text-secondary rounded-md">
+              Thanh toán khi nhận hàng
+            </Button>
+          </div>
+        </div>
+      </div>
+      <div className="container bg-white rounded-sm py-2 border-b-2 border-background grid grid-cols-[1fr_200px_200px] gap-2">
+          <div></div>
+          <span>Tổng thanh toán</span>
+          <span className="text-end text-secondary font-semibold text-xl">{formatCurrency(totalPayment)}</span>
+      </div>
+      <div className="container bg-white rounded-sm p-5 mt-3 border-b-2 border-background flex justify-end">
+        <Button className={"bg-secondary text-white px-8 py-2 rounded-sm"}>Đặt hàng</Button>
       </div>
     </>
   );

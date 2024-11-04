@@ -22,5 +22,5 @@ export function isAxiosExpiredTokenError(error) {
 }
 
 export function formatCurrency(num){
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `đ ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };

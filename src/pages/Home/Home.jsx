@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { setCartToLS } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import path from "../../constants/path";
+import { formatCurrency } from "../../utils/utils";
 
 export default function Home() {
   const { profile, setCart } = useContext(AppContext);
@@ -83,11 +84,10 @@ export default function Home() {
                         <></>
                       )}
                       <span className="text-secondary mb-1">
-                        {(
+                        {formatCurrency (
                           item.price -
                           item.price * item.discountPercentage
-                        ).toFixed(0)}{" "}
-                        đ
+                        )}
                       </span>
 
                       <div className="w-full text-center rounded  py-1 px-3">

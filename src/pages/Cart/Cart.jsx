@@ -240,11 +240,10 @@ export default function Cart() {
               <div className="text-center">
                 {item.product.discountPercentage > 0 && (
                   <span className="line-through">
-                    đ formatCurrency({item.product.price * item.quantity})
+                    formatCurrency({item.product.price * item.quantity})
                   </span>
                 )}
                 <span>
-                  đ
                   {formatCurrency(
                     item.product.price -
                       (item.product.price * item.product.discountPercentage) /
@@ -280,7 +279,6 @@ export default function Cart() {
                 </button>
               </div>
               <div className="text-center">
-                đ
                 {formatCurrency(
                   (item.product.price -
                     (item.product.price * item.product.discountPercentage) /
@@ -323,7 +321,6 @@ export default function Cart() {
               <div className="flex px-5 py-2  flex-wrap">
                 <span className="mr-2">Tổng tiền</span>
                 <span className="text-secondary font-semibold">
-                  đ
                   {formatCurrency(totalSelectedPrice)}
                 </span>
               </div>
