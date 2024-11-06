@@ -13,6 +13,7 @@ export const clearLS = () => {
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("profile");
   localStorage.removeItem("cart");
+  sessionStorage.removeItem("listSelectedCart");
   const clearLSEvent = new Event("clearLS");
   localStorageEventTarget.dispatchEvent(clearLSEvent);
 };
@@ -39,3 +40,16 @@ export const getCartFromLS = () => {
   const result = localStorage.getItem("cart");
   return result ? JSON.parse(result) : null;
 };
+
+export const setSelectedCartToSS = (listSelectedCart) =>{
+  sessionStorage.setItem("listSelectedCart", JSON.stringify(listSelectedCart));
+}
+
+export const getSelectedCartFromSS = () =>{
+  const result =  sessionStorage.getItem("listSelectedCart")
+  return result ? JSON.parse(result) : null;
+}
+
+export const removeSelectedCartFromLS = () =>{
+  sessionStorage.removeItem("listSelectedCart");
+}

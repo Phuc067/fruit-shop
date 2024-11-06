@@ -35,6 +35,5 @@ Input.propTypes = {
   classNameInputCustom: PropTypes.string,
   classNameInput: PropTypes.string,
   classNameError: PropTypes.string,
-  classNameEye: PropTypes.string,
   register: PropTypes.func,
 };

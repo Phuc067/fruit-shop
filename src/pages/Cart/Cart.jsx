@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "../../components/Button/Button";
-import { setCartToLS } from "../../utils/auth";
+import { setCartToLS, setSelectedCartToSS } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
 import path from "../../constants/path";
 
@@ -190,7 +190,7 @@ export default function Cart() {
     if (listSelectedCart.length === 0) {
       toast.warning("Vui lòng chọn sản phẩm để mua hàng");
     } else {
-      sessionStorage.setItem("listSelectedCart", JSON.stringify(listSelectedCart));
+      setSelectedCartToSS(listSelectedCart);
       navigate(path.order);
     }
   }

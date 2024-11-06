@@ -4,26 +4,29 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { formatCurrency } from "../../utils/utils";
 import { Modal } from "antd";
+import { useNavigate } from "react-router-dom";
 import ShippingAddressModal from "./components/ShippingAddressModal";
 import Button from "../../components/Button";
+import paymentMethods from "../../constants/paymentMethod";
+import { Select } from "antd";
+import { useMutation } from "@tanstack/react-query";
+import orderApi from "../../apis/order.api";
+import { getSelectedCartFromSS, removeSelectedCartFromLS, setCartToLS } from "../../utils/auth";
 
 export default function Order() {
-  const { profile } = useContext(AppContext);
+  const { profile , cart, setCart} = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [currentShippingInformation, setCurrentShippingInformation] =
     useState(null);
   const [listShippingInformation, setListShippingInformation] = useState([]);
-
   const [shippingAddressModalOpen, setShippingAddressModalOpen] =
     useState(false);
-
+  const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0].value);
   const shippingInfoRef = useRef(null);
 
-  const listSelectedCart = JSON.parse(
-    sessionStorage.getItem("listSelectedCart")
-  );
-
+  const listSelectedCart = getSelectedCartFromSS();
+  const navigate = useNavigate();
   useEffect(() => {
     const getPrimaryShippingInformation = async () => {
       try {
@@ -41,7 +44,6 @@ export default function Order() {
         toast.error("Không thể lấy dữ liệu địa chỉ nhận hàng");
       }
     };
-
     getPrimaryShippingInformation();
   }, [profile.id]);
 
@@ -125,13 +127,44 @@ export default function Order() {
       total +
       item.quantity *
         (item.product.price -
-          (item.product.price *
-            item.product.discountPercentage) /
-            100),
+          (item.product.price * item.product.discountPercentage) / 100),
     0
   );
 
-  console.log(listSelectedCart);
+  const createOrderMutation = useMutation({
+    mutationFn:(body) =>{
+        orderApi.createOrder(body)
+    }
+  })
+
+
+
+  const handleOrder = ()=>{
+    const cartIds = listSelectedCart.map(item => item.id);
+
+    const body = {
+      userId: profile.id,
+      shippingInformationId: currentShippingInformation.id,
+      paymentMethod,
+      cartList: cartIds
+    }
+
+    console.log(body);
+    createOrderMutation.mutate(body,{
+      onSuccess:(result )=> {
+        let data = result.data.data;
+        const itemInCardWasRemove = cartIds.size;
+        const itemInCard = cart -itemInCardWasRemove;
+        setCart(itemInCard);
+        setCartToLS(itemInCard);
+        removeSelectedCartFromLS();
+        navigate('/payment', { state: { orderData: data } });
+      },
+      onError:(error)=>{
+        toast.error(error);
+      }
+    })
+  }
 
   return (
     <>
@@ -341,25 +374,33 @@ export default function Order() {
         ))}
       </div>
       <div className="container bg-white rounded-sm py-1 mt-3 border-b-2 border-background">
-        <div className="flex gap-2 py-5 ">
+        <div className="flex gap-2 py-5 items-center">
           <span>Phương Thức thanh toán</span>
-          <div className="flex gap-2">
-            <Button className="border-2 px-2 border-smokeBlack hover:border-secondary hover:text-secondary rounded-md">
-              Vnpay
-            </Button>
-            <Button className="border-2 px-2 border-smokeBlack hover:border-secondary hover:text-secondary rounded-md">
-              Thanh toán khi nhận hàng
-            </Button>
-          </div>
+
+          <Select
+            defaultValue= {paymentMethods[0].value}
+            style={{
+              width: 220,
+            }}
+            size="middle"
+            onChange={(key) => {
+              setPaymentMethod(key);
+            }}
+            options={paymentMethods}
+          />
         </div>
       </div>
       <div className="container bg-white rounded-sm py-2 border-b-2 border-background grid grid-cols-[1fr_200px_200px] gap-2">
-          <div></div>
-          <span>Tổng thanh toán</span>
-          <span className="text-end text-secondary font-semibold text-xl">{formatCurrency(totalPayment)}</span>
+        <div></div>
+        <span>Tổng thanh toán</span>
+        <span className="text-end text-secondary font-semibold text-xl">
+          {formatCurrency(totalPayment)}
+        </span>
       </div>
       <div className="container bg-white rounded-sm p-5 mt-3 border-b-2 border-background flex justify-end">
-        <Button className={"bg-secondary text-white px-8 py-2 rounded-sm"}>Đặt hàng</Button>
+        <Button className={"bg-secondary text-white px-8 py-2 rounded-sm"} onClick = {handleOrder}>
+          Đặt hàng
+        </Button>
       </div>
     </>
   );

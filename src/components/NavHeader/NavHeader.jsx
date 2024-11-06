@@ -15,15 +15,13 @@ export default function NavHeader() {
   // console.log(AppContext);
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   const logoutMutation = useMutation({
-    mutationFn: authApi.logout,
-    onSuccess: () => {
-      setIsAuthenticated(false);
-      setProfile(null);
-    },
+    mutationFn: authApi.logout
   });
 
   const handleLogout = () => {
     logoutMutation.mutate();
+    setIsAuthenticated(false);
+    setProfile(null);
   };
 
   return (
