@@ -11,10 +11,17 @@ import paymentMethods from "../../constants/paymentMethod";
 import { Select } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import orderApi from "../../apis/order.api";
-import { getSelectedCartFromSS, removeSelectedCartFromLS, setCartToLS } from "../../utils/auth";
+import paymentApi from "../../apis/payment.api";
+
+import {
+  getSelectedCartFromSS,
+  removeSelectedCartFromSS,
+  setCartToLS,
+} from "../../utils/auth";
+import path from "../../constants/path";
 
 export default function Order() {
-  const { profile , cart, setCart} = useContext(AppContext);
+  const { profile, cart, setCart } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [currentShippingInformation, setCurrentShippingInformation] =
@@ -122,49 +129,58 @@ export default function Order() {
     if (data) setListShippingInformation([...listShippingInformation, data]);
   };
 
-  const totalPayment = listSelectedCart.reduce(
-    (total, item) =>
-      total +
-      item.quantity *
-        (item.product.price -
-          (item.product.price * item.product.discountPercentage) / 100),
-    0
-  );
+  const totalPayment = listSelectedCart
+    ? listSelectedCart.reduce(
+        (total, item) =>
+          total +
+          item.quantity *
+            (item.product.price -
+              (item.product.price * item.product.discountPercentage) / 100),
+        0
+      )
+    : 0;
 
   const createOrderMutation = useMutation({
-    mutationFn:(body) =>{
-        orderApi.createOrder(body)
-    }
-  })
+    mutationFn: (body) => orderApi.createOrder(body),
+  });
 
+  const createPaymentUrlMutation = useMutation({
+    mutationFn: (orderId) => paymentApi.createPaymentUrl(orderId),
+    onSuccess: (res) => {
+      window.location.href = res.data.data;
+    },
+  });
 
-
-  const handleOrder = ()=>{
-    const cartIds = listSelectedCart.map(item => item.id);
+  const handleOrder = () => {
+    const cartIds = listSelectedCart.map((item) => item.id);
 
     const body = {
       userId: profile.id,
       shippingInformationId: currentShippingInformation.id,
       paymentMethod,
-      cartList: cartIds
-    }
+      cartList: cartIds,
+    };
 
     console.log(body);
-    createOrderMutation.mutate(body,{
-      onSuccess:(result )=> {
+    createOrderMutation.mutate(body, {
+      onSuccess: (result) => {
         let data = result.data.data;
+        toast.success(result.data.message);
         const itemInCardWasRemove = cartIds.size;
-        const itemInCard = cart -itemInCardWasRemove;
+        const itemInCard = cart - itemInCardWasRemove;
         setCart(itemInCard);
         setCartToLS(itemInCard);
-        removeSelectedCartFromLS();
-        navigate('/payment', { state: { orderData: data } });
+        removeSelectedCartFromSS();
+        console.log(data.id);
+        if (data.paymentMethod === "vnpay") {
+          createPaymentUrlMutation.mutate(data.id);
+        } else navigate(path.payment, { state: { orderData: data } });
       },
-      onError:(error)=>{
+      onError: (error) => {
         toast.error(error);
-      }
-    })
-  }
+      },
+    });
+  };
 
   return (
     <>
@@ -310,7 +326,12 @@ export default function Order() {
           ) : (
             <div className="flex flex-col gap-2 ml-3 text-xs md:text-sm">
               <span>Bạn chưa có địa chỉ nhận hàng</span>
-              <Button>Thêm địa chỉ</Button>
+              <Button
+                className={"pt-5 px-8 mb-2 text-blue-600 font-medium text-start"}
+                onClick={showCreateModal}
+              >
+                Thêm địa chỉ
+              </Button>
             </div>
           )}
           <ShippingAddressModal
@@ -333,52 +354,58 @@ export default function Order() {
           <div className="text-center">Số tiền</div>
         </div>
 
-        {listSelectedCart.map((item) => (
-          <div
-            className="grid grid-cols-[50%_1fr_10%_1fr] items-center bg-white px -1 rounded-md "
-            key={item.id}
-          >
-            <div className="h-[120px] flex items-center overflow-hidden gap-1 md:gap-2">
-              <img
-                src={item.product.image}
-                className="object-cover h-full"
-                alt=""
-              />
-              <span className="text-xs md:text-base">{item.product.title}</span>
-            </div>
-            <div className="text-center text-xs md:text-sm">
-              {item.product.discountPercentage > 0 && (
-                <span className="line-through">
-                  formatCurrency({item.product.price * item.quantity})
+        {listSelectedCart &&
+          listSelectedCart.map((item) => (
+            <div
+              className="grid grid-cols-[50%_1fr_10%_1fr] items-center bg-white px -1 rounded-md "
+              key={item.id}
+            >
+              <div className="h-[120px] flex items-center overflow-hidden gap-1 md:gap-2">
+                <img
+                  src={item.product.image}
+                  className="object-cover h-full"
+                  alt=""
+                />
+                <span className="text-xs md:text-base">
+                  {item.product.title}
                 </span>
-              )}
-              <span>
-                {formatCurrency(
-                  item.product.price -
-                    (item.product.price * item.product.discountPercentage) / 100
+              </div>
+              <div className="text-center text-xs md:text-sm">
+                {item.product.discountPercentage > 0 && (
+                  <span className="line-through">
+                    formatCurrency({item.product.price * item.quantity})
+                  </span>
                 )}
-              </span>
+                <span>
+                  {formatCurrency(
+                    item.product.price -
+                      (item.product.price * item.product.discountPercentage) /
+                        100
+                  )}
+                </span>
+              </div>
+              <div className="text-center flex justify-center text-xs md:text-sm">
+                <span className="block w-10  text-center ">
+                  {item.quantity}
+                </span>
+              </div>
+              <div className="text-center font-semibold text-xs md:text-sm">
+                {formatCurrency(
+                  (item.product.price -
+                    (item.product.price * item.product.discountPercentage) /
+                      100) *
+                    item.quantity
+                )}
+              </div>
             </div>
-            <div className="text-center flex justify-center text-xs md:text-sm">
-              <span className="block w-10  text-center ">{item.quantity}</span>
-            </div>
-            <div className="text-center font-semibold text-xs md:text-sm">
-              {formatCurrency(
-                (item.product.price -
-                  (item.product.price * item.product.discountPercentage) /
-                    100) *
-                  item.quantity
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
       <div className="container bg-white rounded-sm py-1 mt-3 border-b-2 border-background">
         <div className="flex gap-2 py-5 items-center">
           <span>Phương Thức thanh toán</span>
 
           <Select
-            defaultValue= {paymentMethods[0].value}
+            defaultValue={paymentMethods[0].value}
             style={{
               width: 220,
             }}
@@ -398,7 +425,10 @@ export default function Order() {
         </span>
       </div>
       <div className="container bg-white rounded-sm p-5 mt-3 border-b-2 border-background flex justify-end">
-        <Button className={"bg-secondary text-white px-8 py-2 rounded-sm"} onClick = {handleOrder}>
+        <Button
+          className={"bg-secondary text-white px-8 py-2 rounded-sm"}
+          onClick={handleOrder}
+        >
           Đặt hàng
         </Button>
       </div>

@@ -50,6 +50,7 @@ export const getSelectedCartFromSS = () =>{
   return result ? JSON.parse(result) : null;
 }
 
-export const removeSelectedCartFromLS = () =>{
+export const removeSelectedCartFromSS = () =>{
   sessionStorage.removeItem("listSelectedCart");
+  console.log(`listcart:  ${sessionStorage.getItem("listSelectedCart")}`)
 }

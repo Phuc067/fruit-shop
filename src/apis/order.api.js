@@ -1,11 +1,9 @@
-import http from 'src/utils/http'
+import http from "src/utils/http";
 
 const URL = "api/orders";
 
 const orderApi = {
-  createOrder(body){
-    return http.post(URL, body)
-  }
-}
+  createOrder: (body) =>  http.post(URL, body),
+};
 
-export default orderApi
+export default orderApi;

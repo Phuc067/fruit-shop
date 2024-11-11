@@ -3,9 +3,8 @@ import http from 'src/utils/http'
 const URL = 'api/carts'
 
 const cartApi = {
-  getCart(id) {
-    return http.get(`${URL}/${id}`)
-  },
+  getCart: (id) => http.get(`${URL}/${id}`)
+  ,
   addToCart(body) {
     return http.post(URL, body)
   },
