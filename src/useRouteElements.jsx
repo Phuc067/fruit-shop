@@ -11,6 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Order = lazy(() => import("./pages/Order"));
 const Payment = lazy(() => import("./pages/Payment"))
+const Profile = lazy(()=> import("./pages/Profile"))
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ProtectedRoute() {
@@ -81,6 +82,15 @@ export default function useRouteElements() {
               element: (
                 <Suspense>
                   <Payment />
+                </Suspense>
+              ),
+            },
+            {
+              index: true,
+              path: path.profile,
+              element: (
+                <Suspense>
+                  <Profile/>
                 </Suspense>
               ),
             },
