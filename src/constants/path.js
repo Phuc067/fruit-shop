@@ -6,6 +6,8 @@ const path = {
   order: "/order",
   payment: "/payment",
   productDetail: "/product/:productId",
+  profile: "/profile",
+  
 };
 
 export default path;
