@@ -24,3 +24,15 @@ export function isAxiosExpiredTokenError(error) {
 export function formatCurrency(num){
   return `đ ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
 };
+
+export function maskEmail(email) {
+  const [localPart, domain] = email.split("@");
+  if (localPart.length <= 2) {
+    return `${localPart}...@${domain}`;
+  }
+  return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`;
+}
+
+export function maskPhone(phone){
+  return `********${phone.slice(-2)}`;
+}
