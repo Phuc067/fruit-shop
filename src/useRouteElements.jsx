@@ -10,8 +10,9 @@ const Login = lazy(() => import("./pages/Login"));
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Order = lazy(() => import("./pages/Order"));
-const Payment = lazy(() => import("./pages/Payment"))
-const Profile = lazy(()=> import("./pages/Profile"))
+const Payment = lazy(() => import("./pages/Payment"));
+const Profile = lazy(()=> import("./pages/Profile"));
+const OrderHistory = lazy(()=> import("./pages/OrderHistory"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function ProtectedRoute() {
@@ -91,6 +92,15 @@ export default function useRouteElements() {
               element: (
                 <Suspense>
                   <Profile/>
+                </Suspense>
+              ),
+            },
+            {
+              index: true,
+              path: path.orderHistory,
+              element: (
+                <Suspense>
+                  <OrderHistory/>
                 </Suspense>
               ),
             },

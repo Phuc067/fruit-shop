@@ -126,7 +126,11 @@ export class Http {
         refreshToken: this.refreshToken,
       })
       .then((res) => {
-        const accessToken = res.data.data;
+        const accessToken = res.data?.data;
+        if (!accessToken) {
+          console.error("Access token not found in response:", res.data);
+          throw new Error("Access token is missing");
+        }
         setAccessTokenToLS(accessToken);
         this.accessToken = accessToken;
         return accessToken;

@@ -1,14 +1,23 @@
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-import { loginSchema } from "../../validations/LoginValidations";
 import { useContext } from "react";
 import { AppContext } from "../../contexts/app.context";
 import { useForm } from "react-hook-form";
+import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import { isAxiosUnprocessableEntityError } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import authApi from "../../apis/auth.api";
+
+const loginSchema = yup.object({
+  username: yup
+    .string()
+    .required("Vui lòng nhập tên đăng nhập"),
+  password: yup
+    .string()
+    .required("Vui lòng nhập mật khẩu")
+})
 
 
 export default function Login() {

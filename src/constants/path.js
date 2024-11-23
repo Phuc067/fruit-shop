@@ -7,7 +7,7 @@ const path = {
   payment: "/payment",
   productDetail: "/product/:productId",
   profile: "/profile",
-  
+  orderHistory:"/order-history"
 };
 
 export default path;
