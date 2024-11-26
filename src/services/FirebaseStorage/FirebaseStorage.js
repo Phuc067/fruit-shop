@@ -3,23 +3,6 @@ import { ref, uploadBytes, getDownloadURL, getMetadata, deleteObject} from "fire
 import { generateHash } from "../../utils/utils";
 
 
-export async function uploadProfileImg(img, oldUrl){
-  const hash = generateHash(img); 
-  const filePath = `files/${hash}`; 
-  const imgRef = ref(imageDb, filePath);
-
-  const exists = await checkImageExists(filePath);
-    if (exists) {
-      const downloadURL = await getDownloadURL(imgRef);
-      if(downloadURL !== oldUrl) await deleteImageFromFS(oldUrl);
-      return downloadURL;
-    }
-
-    await uploadBytes(imgRef, img);
-    const downloadURL = await getDownloadURL(imgRef);
-    return downloadURL;
-}
-
 export async function uploadImageToFS(img) {
   try {
     const hash = generateHash(img); 

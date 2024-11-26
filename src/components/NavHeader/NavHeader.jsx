@@ -75,6 +75,12 @@ export default function NavHeader() {
                       >
                         Tài khoản
                       </Link>
+                      <Link
+                        to={path.orderHistory}
+                        className="block w-full py-3 pl-4 pr-8 text-left hover:text-primary"
+                      >
+                        Đơn hàng đã mua
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="block w-full py-3 pl-4 pr-8 text-left hover:text-primary"
