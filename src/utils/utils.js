@@ -22,7 +22,10 @@ export function isAxiosExpiredTokenError(error) {
 }
 
 export function formatCurrency(num){
-  return `đ ${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+  if (num == null) {
+    return ''; 
+  }
+  return `${num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} đ`;
 };
 
 export function maskEmail(email) {
@@ -43,4 +46,37 @@ export async function generateHash(file) {
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+export function composeQueryUrl(url, params = {}) {
+  const searchParams = new URLSearchParams(
+    Object.entries(params).filter(([_, value]) => value !== undefined && value !== null && value !== "").map(([key, value]) => [key, value])
+  );
+  return `${url}?${searchParams.toString()}`;
+}
+
+export const formatTime = (time) => {
+  const date = new Date(time);
+
+  if (isNaN(date)) {
+    return null;
+  }
+
+  const formattedTime = date.toLocaleString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: 'UTC', 
+  });
+
+  const [datePart, timePart] = formattedTime.split(", ");
+  
+  const [day, month, year] = datePart.split("/");
+  
+  const formattedDate = `${timePart} ${day}/${month}/${year}`;
+
+  return formattedDate;
 }

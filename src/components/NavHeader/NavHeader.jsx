@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AppContext } from "src/contexts/app.context";
 import { useMutation } from "@tanstack/react-query";
@@ -13,8 +14,13 @@ import Popover from "../Popover";
 export default function NavHeader() {
   const { isAuthenticated, setIsAuthenticated, profile, setProfile, cart } =
     useContext(AppContext);
-  // console.log(AppContext);
   const [isOpenMenu, setIsOpenMenu] = useState(false);
+  const location = useLocation();
+
+  const pagesWithoutSearch = ["/product", "/cart", "/order"];
+
+  const shouldHideSearch = pagesWithoutSearch.includes(location.pathname);
+
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
   });
@@ -35,7 +41,8 @@ export default function NavHeader() {
                 Fruit shop
               </div>
             </Link>
-            <form className="hidden w-[350px] md:block">
+            {!shouldHideSearch && (
+            <form className="hidden w-[350px] md:block h-8">
               <div className="flex rounded-full border-2 border-primary bg-white p-1">
                 <input
                   type="text"
@@ -62,7 +69,7 @@ export default function NavHeader() {
                   </svg>
                 </button>
               </div>
-            </form>
+            </form>)}
             <div className="flex items-center">
               {isAuthenticated && (
                 <Popover
@@ -160,7 +167,7 @@ export default function NavHeader() {
               />
             </div>
           </div>
-          <div className="mt-[20px] flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between">
             <form className="w-full md:hidden">
               <div className="flex rounded-full border-2 border-primary bg-white p-1">
                 <input

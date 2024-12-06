@@ -50,6 +50,7 @@ export class Http {
         return Promise.reject(error);
       }
     );
+
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config;

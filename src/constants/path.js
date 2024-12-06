@@ -3,9 +3,10 @@ const path = {
   user: "/user",
   login: "/login",
   cart: "/cart",
+  product: "/product",
+  productDetail: "/product/:id",
   order: "/order",
   payment: "/payment",
-  productDetail: "/product/:productId",
   profile: "/profile",
   orderHistory:"/order-history"
 };

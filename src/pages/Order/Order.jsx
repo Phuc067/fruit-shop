@@ -165,16 +165,21 @@ export default function Order() {
     createOrderMutation.mutate(body, {
       onSuccess: (result) => {
         let data = result.data.data;
-        toast.success(result.data.message);
-        const itemInCardWasRemove = cartIds.size;
-        const itemInCard = cart - itemInCardWasRemove;
-        setCart(itemInCard);
-        setCartToLS(itemInCard);
-        removeSelectedCartFromSS();
-        console.log(data.id);
-        if (data.paymentMethod === "vnpay") {
-          createPaymentUrlMutation.mutate(data.id);
-        } else navigate(path.payment, { state: { orderData: data } });
+        if(data)
+        {
+          toast.success(result.data.message);
+          const itemInCardWasRemove = cartIds.size;
+          const itemInCard = cart - itemInCardWasRemove;
+          setCart(itemInCard);
+          setCartToLS(itemInCard);
+          removeSelectedCartFromSS();
+          console.log(data.id);
+          if (data.paymentMethod === "vnpay") {
+            createPaymentUrlMutation.mutate(data.id);
+          } else navigate(path.payment, { state: { orderData: data } });
+        }
+        else toast.error(result.data.message);
+       
       },
       onError: (error) => {
         toast.error(error);

@@ -8,6 +8,8 @@ import MainLayout from "./layouts/MainLayout";
 
 const Login = lazy(() => import("./pages/Login"));
 const Home = lazy(() => import("./pages/Home"));
+const Product = lazy(() => import("./pages/Product"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Order = lazy(() => import("./pages/Order"));
 const Payment = lazy(() => import("./pages/Payment"));
@@ -40,7 +42,24 @@ export default function useRouteElements() {
             </Suspense>
           ),
         },
-       
+        {
+          index: true,
+          path: path.product,
+          element: (
+            <Suspense>
+              <Product />
+            </Suspense>
+          ),
+        },
+        {
+          index: true,
+          path: path.productDetail,
+          element: (
+            <Suspense>
+              <ProductDetail />
+            </Suspense>
+          ),
+        },
         {
           path: "*",
           element: (
