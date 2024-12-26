@@ -33,6 +33,23 @@ const StateInfo = ({ order }) => {
         {order.orderLog?.log} : {formatTime(order.orderLog?.time)}.
       </span>
     ),
+    delivered: () => {
+      <span>
+        {order.orderLog?.log} : {formatTime(order.orderLog?.time)}.
+      </span>
+    },
+    cancelled: () => (
+      <div className="flex gap-5">
+        <span>
+          {order.orderLog?.log} bởi {order?.orderLog?.performedBy} : {formatTime(order.orderLog?.time)}.
+        </span>
+        {
+          order?.isPaid && <span className="bg-primary text-white rounded-md px-2">
+            Đã thanh toán
+          </span>
+        }
+      </div>
+    ),
     returned: () => (
       <span>
         {order.orderLog?.log} : {formatTime(order.orderLog?.time)}.

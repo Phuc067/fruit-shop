@@ -15,9 +15,11 @@ import {
   URL_LOGIN,
   URL_LOGOUT,
   URL_REFRESH_TOKEN,
+  URL_REGISTER,
   URL_VERIFY,
 } from "../apis/auth.api";
 import { isAxiosExpiredTokenError, isAxiosUnauthorizedError } from "./utils";
+import showToast from "../components/ToastComponent/ToastComponent";
 
 export class Http {
   instance;
@@ -30,7 +32,6 @@ export class Http {
     this.refreshTokenRequest = null;
     this.instance = axios.create({
       baseURL: config.baseUrl,
-      timeout: 10000,
       headers: {
         "Content-Type": "application/json",
         //'expire-access-token': 10,
@@ -54,14 +55,18 @@ export class Http {
     this.instance.interceptors.response.use(
       (response) => {
         const { url } = response.config;
-        if (url === URL_LOGIN || url === URL_VERIFY) {
+        if (url === URL_LOGIN || url === URL_REGISTER) {
           const data = response.data;
-          this.accessToken = data.data.accessToken;
-          this.refreshToken = data.data.refreshToken;
-          setAccessTokenToLS(this.accessToken);
-          setRefreshTokenToLS(this.refreshToken);
-          setProfileToLS(data.data.user);
-          setCartToLS(data.data.cartTotal);
+          console.log(data);
+          if(data.data != null){
+            showToast(data.message, "success");
+            this.accessToken = data.data.accessToken;
+            this.refreshToken = data.data.refreshToken;
+            setAccessTokenToLS(this.accessToken);
+            setRefreshTokenToLS(this.refreshToken);
+            setProfileToLS(data.data.user);
+            setCartToLS(data.data.cartTotal);
+          }
         } else if (url === URL_LOGOUT) {
           this.accessToken = "";
           this.refreshToken = "";

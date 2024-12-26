@@ -6,9 +6,11 @@ import { useForm } from "react-hook-form";
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
-import { isAxiosUnprocessableEntityError } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import authApi from "../../apis/auth.api";
+import showToast from "../../components/ToastComponent/ToastComponent";
+import { HttpStatusCode } from "axios";
+import path from "../../constants/path";
 
 const loginSchema = yup.object({
   username: yup
@@ -22,6 +24,7 @@ const loginSchema = yup.object({
 
 export default function Login() {
   const { setIsAuthenticated, setProfile, setCart } = useContext(AppContext)
+
   const navigate = useNavigate()
   const {
     register,
@@ -39,29 +42,24 @@ export default function Login() {
 
 
   const onSubmit = handleSubmit((body) => {
-    console.log(body);
     loginMutation.mutate(body, {
-      onSuccess: (data) => {
-        setIsAuthenticated(true);
-        setProfile(data.data.data.user);
-        setCart(data.data.data.cartTotal)
-        navigate(
-          window.location.href.split("=")[1]
-            ? window.location.href.split("=")[1]
-            : "/"
-        );
-      },
-      onError: (error) => {
-        if (isAxiosUnprocessableEntityError(error)) {
-          const formError = error.response?.data.data;
-          if (formError) {
-            Object.keys(formError).forEach((key) => {
-              setError(key, {
-                message: formError[key],
-                type: "Server",
-              });
-            });
-          }
+      onSuccess: (result) => {
+        if(result.data.status === HttpStatusCode.Ok)
+        {
+          setIsAuthenticated(true);
+          setProfile(result.data.data.user);
+          setCart(result.data.data.cartTotal)
+          navigate(
+            window.location.href.split("=")[1]
+              ? window.location.href.split("=")[1]
+              : "/"
+          );
+        }
+        else{
+          setError("password", {
+            message: result.data?.message,
+            type: "Server",
+          });
         }
       },
     });
@@ -92,7 +90,6 @@ export default function Login() {
                 register={register}
                 errorMessage={errors.password?.message}
                 autoComplete='on'
-                classNameEye='absolute right-[5px] top-[12px] h-5 w-5 cursor-pointer'
               />
             </div>
             <div className="flex justify-between mb-2">
@@ -122,7 +119,7 @@ export default function Login() {
             </div>
             <div className="text-center mt-4">
               <span className="text-gray">Bạn chưa có tài khoản?</span>
-              <button>Tạo ngay</button>
+              <button onClick={()=> navigate(path.register)}>Tạo ngay</button>
             </div>
           </form>
         {/* </div> */}

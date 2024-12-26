@@ -14,8 +14,14 @@ module.exports = {
         // secondary:"#FFFFFF",
         // tertiary: '#640d9a'
 
-        primary:"#28a745",
-        secondary:"#ee4d2d",
+        primary: {
+          DEFAULT: "#3BB34B",
+          light: "#90BE6D"
+        },
+        secondary: {
+          DEFAULT: "#BA1200", 
+          light: "#F56476"
+        },
         // secondary:"#f8c146",
         background:"#F1F2F3",
         gray:"#333333",

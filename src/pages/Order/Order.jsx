@@ -34,6 +34,7 @@ export default function Order() {
 
   const listSelectedCart = getSelectedCartFromSS();
   const navigate = useNavigate();
+  
   useEffect(() => {
     const getPrimaryShippingInformation = async () => {
       try {
@@ -378,10 +379,10 @@ export default function Order() {
               <div className="text-center text-xs md:text-sm">
                 {item.product.discountPercentage > 0 && (
                   <span className="line-through">
-                    formatCurrency({item.product.price * item.quantity})
+                    {formatCurrency(item.product.price * item.quantity)}
                   </span>
                 )}
-                <span>
+                <span className="ml-2">
                   {formatCurrency(
                     item.product.price -
                       (item.product.price * item.product.discountPercentage) /

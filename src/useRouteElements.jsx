@@ -7,8 +7,10 @@ import path from "./constants/path";
 import MainLayout from "./layouts/MainLayout";
 
 const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(()=> import("./pages/Register"));
+const Verification = lazy(()=> import("./pages/Verification"));
 const Home = lazy(() => import("./pages/Home"));
-const Product = lazy(() => import("./pages/Product"));
+const Product = lazy(() => import("./pages/ProductList"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Order = lazy(() => import("./pages/Order"));
@@ -44,7 +46,25 @@ export default function useRouteElements() {
         },
         {
           index: true,
-          path: path.product,
+          path: path.register,
+          element: (
+            <Suspense>
+              <Register />
+            </Suspense>
+          ),
+        },
+        {
+          index: true,
+          path: path.verification,
+          element: (
+            <Suspense>
+              <Verification />
+            </Suspense>
+          ),
+        },
+        {
+          index: true,
+          path: path.productList,
           element: (
             <Suspense>
               <Product />

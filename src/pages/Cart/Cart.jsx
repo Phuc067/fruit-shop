@@ -233,18 +233,18 @@ export default function Cart() {
                   <div className="h-[120px] flex items-center overflow-hidden ">
                     <img
                       src={item.product.image}
-                      className="object-cover h-full"
+                      className="object-cover h-full w-32 rounded-lg"
                       alt=""
                     />
-                    <span className="text-sm ">{item.product.title}</span>
+                    <span className="text-sm md:ml-4">{item.product.title}</span>
                   </div>
                   <div className="text-center border-x border-smokeBlack">
                     {item.product.discountPercentage > 0 && (
                       <span className="line-through">
-                        formatCurrency({item.product.price * item.quantity})
+                        {formatCurrency(item.product.price * item.quantity)}
                       </span>
                     )}
-                    <span>
+                    <span className="ml-2">
                       {formatCurrency(
                         item.product.price -
                         (item.product.price * item.product.discountPercentage) /

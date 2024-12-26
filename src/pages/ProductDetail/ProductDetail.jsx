@@ -45,7 +45,7 @@ export default function ProductDetail() {
     const value = event.target.value;
 
     if (/^\d*$/.test(value)) {
-      setQuantity(value);
+      setQuantity(Number(value));
     }
   };
 

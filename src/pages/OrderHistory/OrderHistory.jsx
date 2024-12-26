@@ -76,6 +76,7 @@ export default function OrderHistory() {
                     key={`${pageIndex}-${orderIndex}`}
                     className="w-full mt-4 pl-2 bg-white py-2 text-sm md:text-base"
                   >
+                  <span className="text-primary-light ml-2">Mã : {order.id}</span>
                     {order.orderDetails.map((orderDetail, detailIndex) => (
                       <div key={detailIndex} className="flex">
                         <div className="object-cover w-24 h-24">

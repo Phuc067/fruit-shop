@@ -47,9 +47,9 @@ export default function Payment() {
   return (
     <>
       {data ? (
-        <div className="container flex flex-col gap-y-2 justify-center rounded-md items-center py-16 bg-secondary text-white">
+        <div className="container flex flex-col gap-y-2 justify-center rounded-md items-center py-16 bg-secondary-light text-white">
           <span>{getMessageReturned(data.vnp_ResponseCode)}</span>
-          <Button className={"bg-white rounded-md text-gray px-3 py-1"} onClick= {()=> navigate(path.home)}>Trở về trang chủ</Button>
+          <Button className={"bg-white rounded-md text-gray px-3 py-1"} onClick= {()=> navigate(path.orderHistory)}>Xem danh sách đơn hàng</Button>
         </div>
       ) : (
         <div>Đang chờ phản hồi từ máy chủ</div>

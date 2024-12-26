@@ -9,6 +9,9 @@ const orderApi = {
    
     return http.get(url);
   },
+  
+  updateStatus:(orderId) => http.put(`${URL}/${orderId}`),
+  cancelOrder:(orderId) => http.put(`${URL}/${orderId}/cancel`)
 };
 
 export default orderApi;

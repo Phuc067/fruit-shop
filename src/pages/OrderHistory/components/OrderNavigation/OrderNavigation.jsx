@@ -5,7 +5,7 @@ const OrderNavigation = ({ activeTab, setActiveTab }) => {
  
 
   return (
-    <div className="bg-white shadow-sm container mt-4 text-sm md:text-base">
+    <div className="bg-white shadow-sm container mt-4 text-sm md:text-base sticky top-[88px] z-50">
       <ul className="flex justify-between space-x-4 py-3">
         {ORDER_TABS.map((tab) => (
           <li

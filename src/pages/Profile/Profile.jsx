@@ -1,4 +1,4 @@
-import { useContext , useState} from "react";
+import { useContext, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -20,6 +20,8 @@ const schema = yup.object({
   firstName: validationSchemas.firstName,
   lastName: validationSchemas.lastName,
   birthDay: validationSchemas.date,
+  email: validationSchemas.email,
+  phone: validationSchemas.phone
 })
 
 export default function Profile() {
@@ -37,58 +39,58 @@ export default function Profile() {
       email: profile.email || "",
       phone: profile.phone || "",
       gender: profile.gender || "khac",
-      birthDay: profile.birthDay || dayjs().format("YYYY/MM/DD"),
+      birthDay: profile.birthDay ? dayjs(profile.birthDay).toDate() : new Date(),
     },
     resolver: yupResolver(schema)
   });
 
   const handleImageChange = (e) => {
-   
+
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
       toast.warn("File được chọn không phải là ảnh!");
     }
     else {
       const imageURL = URL.createObjectURL(file);
-      setAvatarPreview(imageURL); 
+      setAvatarPreview(imageURL);
     }
   };
 
-  const handleChangeEmail =()=>{}
+  const handleChangeEmail = () => { }
+  const handleChangePhone = ()=>{}
 
   const updateMutation = useMutation({
-    mutationFn: ({id, body}) => userApi.updateUserProfile(id, body),
+    mutationFn: ({ id, body }) => userApi.updateUserProfile(id, body),
   })
 
   const onSubmit = async (data) => {
     try {
       console.log(data)
-      let avatarUrl = avatarPreview; 
+      let avatarUrl = avatarPreview;
 
-      if (avatarPreview.startsWith("blob:")) {
+      if (avatarPreview && avatarPreview.startsWith("blob:")) {
 
-        const response = await uploadImageToFS(  
+        const response = await uploadImageToFS(
           document.querySelector('input[type="file"]').files[0]
         );
-        avatarUrl = response; 
-        if(avatarUrl !== profile.avatar) await deleteImageFromFS(profile.avatar);
+        avatarUrl = response;
+        if (avatarUrl !== profile.avatar) await deleteImageFromFS(profile.avatar);
       }
       const id = profile.id;
       const body = { ...data, avatar: avatarUrl };
       console.log(body);
       updateMutation.mutate(
-        {id , body}, {
-          onSuccess: (response)=>{
-            if(response.data.status === HttpStatusCode.Accepted)
-            {
-              const updatedProfile = {id, ...body};
-              setProfileToLS(updatedProfile);
-              setProfile(updatedProfile);
-              toast.success(response.data.message);
-            }
-            else toast.error(response.data.message)
+        { id, body }, {
+        onSuccess: (response) => {
+          if (response.data.status === HttpStatusCode.Accepted) {
+            const updatedProfile = { id, ...body };
+            setProfileToLS(updatedProfile);
+            setProfile(updatedProfile);
+            toast.success(response.data.message);
           }
+          else toast.error(response.data.message)
         }
+      }
       )
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -111,7 +113,7 @@ export default function Profile() {
             <label className="w-[30%] block text-smokeBlack">
               Tên đăng nhập
             </label>
-            <span className="text-gray-900">phuc051102no1</span>
+            <span className="text-gray-900">{profile.username}</span>
           </div>
 
           <div className="flex gap-x-4 w-full">
@@ -133,28 +135,40 @@ export default function Profile() {
 
           <div className="flex gap-x-4 w-full">
             <label className="w-[30%] block text-smokeBlack">Email</label>
-            {profile.email ? (
+            {/* {profile.email ? (
               <div className="flex gap-x-4">
                 <span>{maskEmail(profile.email)}</span>
                 <button type="button" className="text-blue-500" onClick={handleChangeEmail}>thay đổi</button>
               </div>
             ) : (
               <button className="text-blue-500">Thêm</button>
-            )}
+            )} */}
+            <Input
+              name="email"
+              register={register}
+              className="min-w-30 w-[35%]"
+              errorMessage={errors.email?.message}
+            />
           </div>
 
           <div className="flex gap-x-4 w-full">
             <label className="w-[30%] block text-smokeBlack">
               Số điện thoại
             </label>
-            {profile.phone ? (
+            {/* {profile.phone ? (
               <div className="flex gap-x-4">
                 <span>{maskPhone(profile.phone)}</span>
-                <button type="button" className="text-blue-500">thay đổi</button>
+                <button type="button" className="text-blue-500" onClick ={handleChangePhone}>thay đổi</button>
               </div>
             ) : (
               <button className="text-blue-500">Thêm</button>
-            )}
+            )} */}
+            <Input
+              name="phone"
+              register={register}
+              className="min-w-30 w-[35%]"
+              errorMessage={errors.phone?.message}
+            />
           </div>
 
           <div className="flex gap-x-4 w-full">
@@ -173,23 +187,24 @@ export default function Profile() {
               ))}
             </div>
           </div>
-
-          <div className="flex gap-x-4 w-full">
-            <label className="w-[30%] block text-smokeBlack">Ngày sinh</label>
-            <Controller
-              control={control}
-              name="birthDay"
-              render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  value={dayjs(field.value)}
-                  format="YYYY/MM/DD"
-                  onChange={(date, dateString) => field.onChange(dateString)}
-                />
-              )}
-            />
+          <div className="w-full">
+            <div className="flex gap-x-4 w-full">
+              <label className="w-[30%] block text-smokeBlack">Ngày sinh</label>
+              <Controller
+                control={control}
+                name="birthDay"
+                render={({ field }) => (
+                  <DatePicker
+                    {...field}
+                    value={field.value ? dayjs(field.value) : null}
+                    format="YYYY/MM/DD"
+                    onChange={(date, dateString) => field.onChange(date ? date.toDate() : null)}
+                  />
+                )}
+              />
+            </div>
+            <div className="mt-1 min-h-[1.25rem] text-sm text-red-600" >{errors.birthDay?.message}</div>
           </div>
-
           <button
             type="submit"
             className="w-40 bg-secondary text-white p-2 rounded-md hover:bg-secondary"
